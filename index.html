@@ -61,9 +61,9 @@ By Aaron Geisler and Sam Perez
     - Function purity
 
 2. Currying
-    - Parameter reordering
+    - Function arity    
     - Partial application
-    - Function arity
+    - Parameter ordering
 
 3. Function composition
     - Functions of functions
@@ -71,7 +71,7 @@ By Aaron Geisler and Sam Perez
 
 ---
 
-# Mutable objects
+# Mutable Objects
 
 ####'liable to change'
 
@@ -118,14 +118,13 @@ Side effects come in many flavors:
 
 ---
 
-# Function purity
+#Function Purity
 
-A function is pure if:
+####A function is pure if...
 
 1. Given the same inputs, it always evaluates to the same result
 
 2. Does not have side effects
-
 
 ```javascript
 function impureFunction(person){
@@ -145,21 +144,185 @@ function pureFunction(person){
     name: person.name.toUpperCase()
   };
 }
+
+```
+
+
+---
+
+
+#Immutability & Purity in Ramda.js
+
+####Ramda guarantees
+1. It's methods are pure
+2. It 
+
+---
+
+# Practical Benefits
+
+####Why write code this way?
+
+1. Easy to test and verify correctness
+
+2. Concurrency 
+
+3. Avoid bugs related to side effects and global state
+
+4. You can 'trust' the functions you call
+
+```javascript
+
+functionOfCompleteMystery(options); // Muhahaha
+
+
+
 ```
 
 ---
 
+# Currying - Function Arity
+####'the number of arguments a function takes'
+
+```javascript
+
+function arityOfOne(x) {
+  ...
+}
+
+function arityOfTwo(x, y) {
+  ...
+}
+
+function arityOfThree(x, y, z) {
+  ...
+}
+
+
+```
+
 
 
 ---
 
-# Code Examples
+2. Currying
+    - Function arity    
+    - Partial application
+    - Parameter ordering
 
-1. Imperative vs declarative
 
-2. Pipeline
+---
 
-3. Look, no loops!
+
+#Look Familiar?
+
+```javascript
+
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(function(data) {
+            return R.get('tasks', data)
+        })
+        .then(function(tasks) {
+            return R.filter(function(task) {
+                return R.propEq('username', membername, task)
+            }, tasks)
+         })
+        .then(function(tasks) {
+            return R.reject(function(task) {
+                return R.propEq('complete', true, task);
+            }, tasks)
+        })
+        .then(function(tasks) {
+            return R.map(function(task) {
+                return R.pick(['id', 'dueDate', 'title', 'priority'], task);
+            }, tasks);
+        })
+        .then(function(abbreviatedTasks) {
+            return R.sortBy(function(abbrTask) {
+                return R.get('dueDate', abbrTask);
+            }, abbreviatedTasks);
+        });
+};
+
+```
+
+---
+
+#Using Curried Functions
+
+Before
+```javascript
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(function(data) {
+            return R.get('tasks', data)
+        })
+        .then(function(tasks) {
+            return R.filter(function(task) {
+                return R.propEq('username', membername, task)
+            }, tasks)
+         })
+         ...
+```
+
+After
+```javascript
+var getIncompleteTaskSummaries = function(membername) {
+    return fetchData()
+        .then(R.get('tasks'))
+        .then(R.filter(R.propEq('username', membername)))
+        .then(R.reject(R.propEq('complete', true)))
+        .then(R.map(R.pick(['id', 'dueDate', 'title', 'priority'])))
+        .then(R.sortBy(R.get('dueDate')));
+};
+```
+
+---
+
+#Pipe & Curry
+
+```javascript
+
+const transformRecords = R.pipe(
+  R.get('tasks'),
+  R.filter(R.propEq('username', membername)),
+  R.reject(R.propEq('complete', true)),
+  R.map(R.pick(['id', 'dueDate', 'title', 'priority'])),
+  R.sortBy(R.get('dueDate'))
+);
+
+const getIncompleteTaskSummaries = function(membername) {    
+    return fetchData().then(transformRecords);        
+};
+```
+
+---
+
+#Problem #8 - Project Euler
+
+
+The four adjacent digits in the 1000-digit number that have the greatest product are 9 × 9 × 8 × 9 = 5832.
+
+```javascript
+73167176531330624919225119674426574742355349194934
+96983520312774506326239578318016984801869478851843
+85861560789112949495459501737958331952853208805511
+12540698747158523863050715693290963295227443043557
+66896648950445244523161731856403098711121722383113
+62229893423380308135336276614282806444486645232...
+
+```
+
+###Find the thirteen adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
+
+
+
+
+---
+
+#Yep!
+
 ```javascript
 function largestAdjacentProduct(array, windowSize) {
         return R.pipe(
@@ -176,6 +339,28 @@ function largestAdjacentProduct(array, windowSize) {
         )(array);
 }
 ```
+
+
+---
+
+
+#Questions
+
+.
+
+---
+
+# Contact
+- samuelp@socialnative.com
+- aaron@leaselock.com
+
+# Links
+- Presentation: http://github.com/js-presentation
+- Ramda: http://ramdajs.com/
+
+---
+
+
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
