@@ -153,9 +153,21 @@ function pureFunction(person){
 
 #Immutability & Purity in Ramda.js
 
-####Ramda guarantees
-1. It's methods are pure
-2. It 
+```javascript
+
+const a = ['write', 'more'];
+const b = R.append('tests', a);
+
+console.log(a === b); // => false
+
+``` 
+vs.
+```javascript
+
+let a = ['write', 'more'];
+a.push('tests');
+
+``` 
 
 ---
 
@@ -181,7 +193,7 @@ functionOfCompleteMystery(options); // Muhahaha
 
 ---
 
-# Currying - Function Arity
+# Function Arity
 ####'the number of arguments a function takes'
 
 ```javascript
@@ -202,19 +214,118 @@ function arityOfThree(x, y, z) {
 ```
 
 
+---
+
+# Partial Function Application
+
+####'apply arguments to a function producing another function of smaller arity'
+
+```javascript
+
+function add(a, b, c){
+  return a + b + c;
+}
+
+const arityThree = R.curry(add);  // => function(a, b, c)
+
+const arityTwo = arityThree(1);   // => function(b, c)
+
+const arityOne = arityTwo(2);     // => function(c)
+
+const result = arityOne(3);       // => 6
+```
 
 ---
 
-2. Currying
-    - Function arity    
-    - Partial application
-    - Parameter ordering
+
+# Parameter Reordering
+
+
+```javascript
+
+function concat(a, b, c){
+  return a.toString() + b.toString() + c.toString();
+}
+
+const arityThree = R.curry(concat);                   // => function(a, b, c)
+
+const arityOne = arityThree(R.__, 2, 3);              // => function(a)
+
+const result = arityOne(1);                           // => 123
+
+```
+
+---
+
+# Parameters in Ramda
+
+Ramda is very consistent with parameter ordering:
+- Objects, lists, and values are supplied last
+- Functions are typically provided first
+- Very easy to remember
+
+```javascript
+
+R.map(mappingFunction, list);
+
+R.reduce(reducingFunction, accum, list);
+
+R.append(element, list);
+
+
+```
+
+---
+
+# Function Composition
+
+Similar to object composition in OOP - combine functions to create new functions.
+
+
+#####We are going to talk about two:
+
+1. Left-to-right function composition -> R.compose
+
+2. right-to-left function composition -> R.pipe
+
+[INSERT VISUALIZATION HERE]
 
 
 ---
 
 
-#Look Familiar?
+# Example 1 - Nested Functions
+
+####Ever wrote something that looked like this?
+
+```javascript
+
+function someFunction(x) {
+  return foo(bar(baz(qux(x))));  
+}
+
+```
+
+####R.compose to the rescue!
+
+```javascript
+
+function someFunction(x) {
+  // Right-to-left composition
+  return R.compose(
+    foo,
+    bar,
+    baz,
+    qux
+  )(x);
+}
+
+```
+
+
+---
+
+# Example 2 - Chained Thens
 
 ```javascript
 
@@ -249,7 +360,7 @@ var getIncompleteTaskSummaries = function(membername) {
 
 ---
 
-#Using Curried Functions
+#Example 2 - Curried Functions
 
 Before
 ```javascript
@@ -280,7 +391,7 @@ var getIncompleteTaskSummaries = function(membername) {
 
 ---
 
-#Pipe & Curry
+#Example 2 - Pipe & Curry
 
 ```javascript
 
@@ -299,7 +410,7 @@ const getIncompleteTaskSummaries = function(membername) {
 
 ---
 
-#Problem #8 - Project Euler
+#Example 3 - Project Euler
 
 
 The four adjacent digits in the 1000-digit number that have the greatest product are 9 × 9 × 8 × 9 = 5832.
@@ -317,11 +428,18 @@ The four adjacent digits in the 1000-digit number that have the greatest product
 ###Find the thirteen adjacent digits in the 1000-digit number that have the greatest product. What is the value of this product?
 
 
+---
 
+#Example 3 - Imperative Approach
+
+```javascript
+Code me
+
+```
 
 ---
 
-#Yep!
+#Example 3 - Declarative Approach
 
 ```javascript
 function largestAdjacentProduct(array, windowSize) {
@@ -340,13 +458,43 @@ function largestAdjacentProduct(array, windowSize) {
 }
 ```
 
+Notice we did not need any loops or if statements.
+
+---
+
+# Drawbacks of Ramda & FP
+
+1. Function pipelines can be more difficult to debug
+
+2. Performance  - immutability comes at a price
+
+3. Steeper learning curve
+
+4. The occassional cryptic error message
+
+---
+
+# Using Ramda in Production - Social Native
+
+How and where is SN using Ramda? 
+
+---
+
+# Realized Benefits of FP
+
+How is this helping?
+
+---
+
+# Clojure & 'Real' Functional Languages
+
+Talk about Social Native's use of Clojure? 
 
 ---
 
 
-#Questions
+# Questions
 
-.
 
 ---
 
