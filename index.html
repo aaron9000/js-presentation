@@ -31,7 +31,7 @@ By Aaron Geisler and Sam Perez
 
 1. Ramda.js
 
-2. Concepts & overview
+2. Key concepts
 
 3. Code examples
 
@@ -42,7 +42,7 @@ By Aaron Geisler and Sam Perez
 ---
 
 # Ramda.js
-        
+
 1. Immutability & purity
 
 2. Curried functions
@@ -53,11 +53,129 @@ By Aaron Geisler and Sam Perez
 
 ---
 
-# Concepts
+# Key Concepts
 
 1. Immutability
+    - Mutable objects
+    - Side effects
+    - Function purity
 
-2.
+2. Currying
+    - Parameter reordering
+    - Partial application
+    - Function arity
+
+3. Function composition
+    - Functions of functions
+    - Pipelines
+
+---
+
+# Mutable objects
+
+####'liable to change'
+
+By default, js objects are mutable
+```javascript
+let mutablePerson = {
+  name: 'Jeff'
+};
+
+mutablePerson.name = 'Jeffrey';
+
+console.log(mutablePeron.name); // => 'Jeffrey'
+```
+
+You can make an immutable object with some extra work
+```javascript
+let immutablePerson = Object.freeze({
+  name: 'Jeff'
+});
+
+immutablePerson.name = 'Jeffrey';
+
+console.log(immutablePeron.name); // => 'Jeff'
+
+```
+---
+
+# Side Effects 
+
+####'modifies some state or has an observable interaction with calling functions or the outside world'
+
+Side effects come in many flavors:
+
+1. Making HTTP calls
+
+2. Writing to a database
+
+3. Logging
+
+4. Altering global state
+
+5. Modifying pass-by-reference input parameters
+
+
+---
+
+# Function purity
+
+A function is pure if:
+
+1. Given the same inputs, it always evaluates to the same result
+
+2. Does not have side effects
+
+
+```javascript
+function impureFunction(person){
+  person.name = person.name.toUpperCase();
+  return person;
+}
+
+function anotherImpureFunction(person){
+  if (Math.random() < 0.5){
+    person.name = person.name.toUpperCase();
+  }  
+  return person;
+}
+
+function pureFunction(person){
+  return {
+    name: person.name.toUpperCase()
+  };
+}
+```
+
+---
+
+
+
+---
+
+# Code Examples
+
+1. Imperative vs declarative
+
+2. Pipeline
+
+3. Look, no loops!
+```javascript
+function largestAdjacentProduct(array, windowSize) {
+        return R.pipe(
+            R.length,
+            R.subtract(R.__, windowSize),
+            R.range(0),
+            R.reduce((accum, value) => {
+                return R.pipe(
+                    R.slice(value, value + windowSize),
+                    R.product,
+                    v => v > accum ? v : accum
+                )(array);
+            }, 0)
+        )(array);
+}
+```
 
     </textarea>
     <script src="https://gnab.github.io/remark/downloads/remark-latest.min.js">
