@@ -286,9 +286,18 @@ Similar to object composition in OOP - combine functions to create new functions
 
 1. Left-to-right function composition -> R.compose
 
-2. right-to-left function composition -> R.pipe
+2. Right-to-left function composition -> R.pipe
 
-[INSERT VISUALIZATION HERE]
+```javascript
+const output = R.pipe(
+  functionA,
+  functionB,
+  functionC
+)(input);
+
+```
+
+.center[![Center-aligned image](img/pipeline.png)]
 
 
 ---
@@ -311,7 +320,6 @@ function someFunction(x) {
 ```javascript
 
 function someFunction(x) {
-  // Right-to-left composition
   return R.compose(
     foo,
     bar,
@@ -433,7 +441,20 @@ The four adjacent digits in the 1000-digit number that have the greatest product
 #Example 3 - Imperative Approach
 
 ```javascript
-Code me
+function largestAdjacentProduct(array, windowSize) {
+  let len = array.length - windowSize;
+  let largestProduct = 0;
+  for (let i = 0; i < len; i++){
+    let product = array[i];
+    for (let j = 1; j++; j < windowSize){
+      product *= array[j + i];
+    }
+    if (product > largestProduct){
+      largestProduct = product;
+    }
+  }
+  return largestProduct;
+}
 
 ```
 
@@ -443,18 +464,18 @@ Code me
 
 ```javascript
 function largestAdjacentProduct(array, windowSize) {
-        return R.pipe(
-            R.length,
-            R.subtract(R.__, windowSize),
-            R.range(0),
-            R.reduce((accum, value) => {
-                return R.pipe(
-                    R.slice(value, value + windowSize),
-                    R.product,
-                    v => v > accum ? v : accum
-                )(array);
-            }, 0)
-        )(array);
+  return R.pipe(
+      R.length,
+      R.subtract(R.__, windowSize),
+      R.range(0),
+      R.reduce((accum, value) => {
+          return R.pipe(
+              R.slice(value, value + windowSize),
+              R.product,
+              v => v > accum ? v : accum
+          )(array);
+      }, 0)
+  )(array);
 }
 ```
 
@@ -503,7 +524,7 @@ Talk about Social Native's use of Clojure?
 - aaron@leaselock.com
 
 # Links
-- Presentation: http://github.com/js-presentation
+- Presentation: http://github.com/aaron9000/js-presentation
 - Ramda: http://ramdajs.com/
 
 ---
