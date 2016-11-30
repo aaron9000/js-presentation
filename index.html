@@ -497,7 +497,125 @@ Notice we did not need any loops or if statements.
 
 # Using Ramda in Production - Social Native
 
-How and where is SN using Ramda? 
+How and where is SN using Ramda?
+
+All over the place! Great on both frontend or backend.
+
+Especially useful for:
+
+1. Data processing
+2. Data tranformations
+
+---
+
+# Real life example - object to CSV transforms
+
+We are often transforming data blobs to csv to generate reports. How does it work?
+
+For example, we want to transform:
+
+```javascript
+{
+    field1: 'boop',
+    parent: {
+        field2: 'bop',
+        field3: 'it'
+    }
+}
+```
+
+to:
+
+```javascript
+{
+    displayName1: 'boop',
+    displayName2: 'bop_it'
+}
+```
+
+---
+
+# Describe the shape and transformations
+
+```javascript
+const TEMPLATE_LEAF_MARKER = 'TEMPLATE_LEAF_MARKER';
+const BASE_TEMPLATE_METADATA = { TEMPLATE_LEAF_MARKER };
+const DATA_NOT_AVAILABLE_PLACEHOLDER = '--';
+
+const EXAMPLE_TRANSFORM_TEMPLATE = {
+    "field1": R.merge({'displayName': 'displayName1'}, BASE_TEMPLATE_METADATA),
+    "parent": R.merge(
+        {
+            'displayName': 'displayName2',
+            'processor': (parent) => parent.field2 + '_' + parent.field3
+        },
+        BASE_TEMPLATE_METADATA
+    )
+};
+```
+
+---
+
+# The goods
+
+```javascript
+function transformBlobToCSVRow(blobToTransform, transformTemplate) {
+    const allLeaves = getLeafPaths(transformTemplate);
+    const findPathsWithTemplateLeafMarker = R.filter(
+        R.pipe(
+            R.last,
+            R.equals(TEMPLATE_LEAF_MARKER)
+        )
+    );
+    const removeTemplateLeafMarkerFromPath = R.init;
+
+    const pathsToTransform = R.map(
+        removeTemplateLeafMarkerFromPath,
+        findPathsWithTemplateLeafMarker(allLeaves)
+    );
+
+    const getProcessorFn = R.ifElse(
+        R.has('processor'),
+        R.prop('processor'),
+        R.always(R.identity)
+    );
+
+    ...
+```
+---
+
+# The goods cont...
+
+```javascript
+    ...
+    const transformedBlob = R.reduce(
+        (acc, transformPath) => {
+            const transformMetadata = R.path(transformPath, transformTemplate);
+
+            const displayName = R.ifElse(
+                R.has('displayName'),
+                R.prop('displayName'),
+                R.always(R.join('_', transformPath))
+            )(transformMetadata);
+
+            const processorFn = getProcessorFn(transformMetadata);
+            const valueToProcess = R.path(transformPath, blobToTransform);
+
+            const value = R.ifElse(
+                R.isNil,
+                R.always(DATA_NOT_AVAILABLE_PLACEHOLDER),
+                processorFn
+            )(valueToProcess);
+
+            return R.assoc(displayName, value, acc);
+        },
+        {},
+        pathsToTransform
+    );
+
+    return transformedBlob;
+}
+```
 
 ---
 
@@ -505,11 +623,10 @@ How and where is SN using Ramda?
 
 How is this helping?
 
----
-
-# Clojure & 'Real' Functional Languages
-
-Talk about Social Native's use of Clojure? 
+1. More readable code
+2. Encourages breaking up processing into digestable pieces
+3. Flatter code, easier to reason about
+4. Encourages declarative vs imperative
 
 ---
 
